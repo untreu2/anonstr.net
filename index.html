@@ -64,7 +64,7 @@
             color: black;
             resize: none;  
             overflow-y: auto;  
-}
+        }
 
          input[type="text"] {
             width: 100%;
@@ -76,7 +76,7 @@
             color: black;
             height: auto;  
             line-height: 1.5em;
-}
+        }
 
         button {
             width: 100%;
@@ -203,10 +203,10 @@
 
         document.getElementById('shareButton').addEventListener('click', async () => {
             const message = document.getElementById('message').value;
-            const displayName = document.getElementById('displayName').value;
+            let displayName = document.getElementById('displayName').value || "satoshi";
 
-            if (!message || !displayName) {
-                alert('Please enter both your message and display name.');
+            if (!message) {
+                alert('Please enter your message.');
                 return;
             }
 
@@ -320,8 +320,8 @@
 
     <div class="container">
         <h1>Create an Anonymous Nostr Note</h1>
-        <textarea id="message" placeholder="Top secret..."></textarea>
-        <input type="text" id="displayName" placeholder="Your display name...">
+        <textarea id="message" placeholder="Enter your note..."></textarea>
+        <input type="text" id="displayName" placeholder="Enter your display name... (Optional)">
         <button id="shareButton">Share</button>
     </div>
 
