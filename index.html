@@ -9,7 +9,7 @@
     body {
       font-family: 'Roboto Mono', monospace;
       background-color: #282828;
-      color: #ebdbb2;
+      color: #d3869b;
       margin: 0;
       min-height: 100vh;
       display: flex;
@@ -19,7 +19,6 @@
       position: relative;
       overflow-x: hidden;
     }
-
     .title {
       display: flex;
       align-items: center;
@@ -32,7 +31,6 @@
       white-space: nowrap;
       margin: 0;
     }
-
     .container {
       max-width: 500px;
       width: 90%;
@@ -42,18 +40,17 @@
     .container h1 {
       font-size: 2rem;
       margin-bottom: 20px;
-      color: #a89984;
+      color: #d3869b;
     }
-
     textarea,
     input {
       width: 100%;
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 10px;
-      border: 2px solid #ebdbb2;
+      border: 2px solid #d3869b;
       background: transparent;
-      color: #ebdbb2;
+      color: #d3869b;
       font-family: 'Roboto Mono', monospace;
       box-sizing: border-box;
     }
@@ -61,21 +58,20 @@
       min-height: 150px;
       resize: none;
     }
-
     button {
       width: 100%;
       padding: 10px;
-      border: 2px solid #ebdbb2;
+      border: 2px solid #d3869b;
       border-radius: 30px;
       background: transparent;
-      color: #ebdbb2;
+      color: #d3869b;
       cursor: pointer;
       font-family: 'Roboto Mono', monospace;
       font-size: 1.2rem;
       transition: 0.3s;
     }
     button:hover {
-      background-color: #ebdbb2;
+      background-color: #d3869b;
       color: #282828;
       transform: translateY(-2px);
     }
@@ -83,19 +79,17 @@
       background-color: #ccc;
       color: #282828;
     }
-
     #result {
       display: none;
       padding: 20px;
       margin-top: 20px;
-      border: 2px solid #ebdbb2;
+      border: 2px solid #d3869b;
       border-radius: 30px;
       text-align: center;
       width: 90%;
       max-width: 500px;
       box-sizing: border-box;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -110,11 +104,11 @@
       background-color: #282828;
       margin: 10% auto;
       padding: 20px;
-      border: 2px solid #ebdbb2;
+      border: 2px solid #d3869b;
       border-radius: 10px;
       width: 80%;
       max-width: 500px;
-      color: #ebdbb2;
+      color: #d3869b;
       font-family: 'Roboto Mono', monospace;
       text-align: left;
       position: relative;
@@ -123,7 +117,7 @@
       word-wrap: break-word;
     }
     .close {
-      color: #ebdbb2;
+      color: #d3869b;
       float: right;
       font-size: 28px;
       font-weight: bold;
@@ -131,10 +125,9 @@
     }
     .close:hover,
     .close:focus {
-      color: #a89984;
+      color: #fabd2f;
       text-decoration: none;
     }
-
     @media (max-width: 768px) {
       .title h2 {
         font-size: 2.5rem;
@@ -158,9 +151,7 @@
   <script type="module">
     import { nip19, finalizeEvent, getPublicKey } from 'https://cdn.jsdelivr.net/npm/nostr-tools/+esm';
     import { Relay, useWebSocketImplementation } from 'https://cdn.jsdelivr.net/npm/nostr-tools/relay/+esm';
-
     useWebSocketImplementation(WebSocket);
-
     const relays = [
       'wss://strfry.iris.to',
       'wss://relay.damus.io',
@@ -170,13 +161,11 @@
       'wss://nos.lol',
       'wss://untreu.me'
     ];
-
     async function connectWithTimeout(relayUrl, timeout = 800) {
       return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
           reject(new Error(`Timeout connecting to relay: ${relayUrl}`));
         }, timeout);
-
         Relay.connect(relayUrl)
           .then(relay => {
             clearTimeout(timeoutId);
@@ -188,25 +177,20 @@
           });
       });
     }
-
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('shareButton').addEventListener('click', async () => {
         const message = document.getElementById('message').value;
         let displayName = document.getElementById('displayName').value || "satoshi";
-
         if (!message) {
           alert('Please enter your message.');
           return;
         }
-
         const shareButton = document.getElementById('shareButton');
         shareButton.innerText = 'Sharing...';
         shareButton.disabled = true;
-
         try {
           const privateKey = window.crypto.getRandomValues(new Uint8Array(32));
           const publicKey = getPublicKey(privateKey);
-
           const displayNameEvent = {
             kind: 0,
             pubkey: publicKey,
@@ -214,9 +198,7 @@
             tags: [],
             content: JSON.stringify({ name: displayName })
           };
-
           const signedDisplayNameEvent = finalizeEvent(displayNameEvent, privateKey);
-
           const note = {
             kind: 1,
             pubkey: publicKey,
@@ -224,13 +206,10 @@
             created_at: Math.floor(Date.now() / 1000),
             tags: []
           };
-
           const signedNote = finalizeEvent(note, privateKey);
-
           document.getElementById('nsec').innerText = 'nsec: ' + nip19.nsecEncode(privateKey);
           document.getElementById('npub').innerText = 'npub: ' + nip19.npubEncode(publicKey);
           document.getElementById('noteId').innerText = 'Note ID: ' + signedNote.id;
-
           let relayStatusText = 'Published to relays: ';
           for (const relayUrl of relays) {
             try {
@@ -242,9 +221,10 @@
               console.error(`Relay error at ${relayUrl}:`, error);
             }
           }
-
           document.getElementById('relayStatus').innerText = relayStatusText;
           showModal(privateKey, publicKey, signedNote.id, relayStatusText);
+          const npub = nip19.npubEncode(publicKey);
+          window.open(`https://primal.net/p/${npub}`, '_blank');
         } catch (error) {
           console.error('An error occurred:', error);
         } finally {
@@ -253,7 +233,6 @@
         }
       });
     });
-
     function showModal(privateKey, publicKey, noteId, relayStatusText) {
       const modalContent = `
         <span class="close" id="closeModal">&times;</span>
@@ -264,15 +243,12 @@
         <p id="modalRelayStatus">${relayStatusText}</p>
         <button class="download-btn" id="downloadInfo">Download Info</button>
       `;
-
       const modal = document.getElementById('modal');
       modal.style.display = "block";
       modal.querySelector('.modal-content').innerHTML = modalContent;
-
       modal.querySelector('#closeModal').onclick = function() {
         modal.style.display = "none";
       };
-
       document.getElementById('downloadInfo').onclick = function() {
         const blob = new Blob([modalContent], { type: 'text/plain' });
         const link = document.createElement('a');
@@ -293,7 +269,7 @@
     <input type="text" id="displayName" placeholder="Enter your display name... (Optional)">
     <button id="shareButton">Share</button>
     <div style="margin-top: 20px; font-size: 0.8rem;">
-      <a href="https://github.com/untreu2/spystr" target="_blank" style="color: #ebdbb2; text-decoration: none;">Source code on GitHub</a>
+      <a href="https://github.com/untreu2/spystr" target="_blank" style="color: #d3869b; text-decoration: none;">Source code on GitHub</a>
     </div>
   </div>
   <div id="result">
